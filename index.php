@@ -1,5 +1,7 @@
 <?php
+
 require_once ('../config.php');
+require_once ('api_config.php');
 require_once ('funcs.php');
 require_once ('lib/flight/Flight.php');
 require_once ('lib/medoo.php');

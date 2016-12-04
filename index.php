@@ -69,4 +69,7 @@ include ("order.php");
 Flight::route('/order/list/@store_id:[0-9]+/@order_status_id:[0-9]+(/@take:[0-9]+(/@skip:[0-9]+))', 'order_list');
 Flight::route('POST /order/history/add', 'order_history_add');
 
+include ("option.php");
+Flight::route('POST /option/value/add', 'option_value_add');
+
 Flight::start();

@@ -14,6 +14,14 @@ function option_value_add(){
 				"sort_order" => 0,
 				"renk_beden" => $request->data["renk_beden"]
 			));
+			if($option_value_id){
+				$db->insert("option_value_description", array(
+					"option_value_id" => $option_value_id,
+					"language_id" => 1,
+					"option_id" => 13,
+					"name" => $request->data["renk_beden"]
+				));
+			}
 		}
 		$datas = $db->get("option_value", "*", array("option_value_id"=>$option_value_id));
 		$result = array('state' => true, 'data'=>$datas, 'Messages' => array() );		

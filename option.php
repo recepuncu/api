@@ -6,21 +6,27 @@ function option_value_add(){
 	
 	try {
 		$request = Flight::request();	
-		if( $db->has("option_value", array("renk_beden"=>$request->data["renk_beden"])) ){			
-			$option_value_id = $db->get("option_value", "option_value_id", array("renk_beden"=>$request->data["renk_beden"]));
+		if( $db->has("option_value_entegrasyon", array("renk_beden"=>$request->data["renk_beden"])) ){			
+			$option_value_id = $db->get("option_value_entegrasyon", "option_value_id", array("renk_beden"=>$request->data["renk_beden"]));
 		}else{		
-			$option_value_id = $db->insert("option_value", array(
+			$option_value_entegrasyon_id = $db->insert("option_value_entegrasyon", array(
 				"option_id" => 13,
 				"sort_order" => 0,
 				"renk_beden" => $request->data["renk_beden"]
 			));
-			if($option_value_id){
-				$db->insert("option_value_description", array(
-					"option_value_id" => $option_value_id,
-					"language_id" => 1,
+			if($option_value_entegrasyon_id){
+				$option_value_id = $db->insert("option_value", array(
 					"option_id" => 13,
-					"name" => $request->data["renk_beden"]
+					"sort_order" => 0					
 				));
+				if($option_value_id){
+					$db->insert("option_value_description", array(
+						"option_value_id" => $option_value_id,
+						"language_id" => 1,
+						"option_id" => 13,
+						"name" => $request->data["renk_beden"]
+					));
+				}
 			}
 		}
 		$datas = $db->get("option_value", "*", array("option_value_id"=>$option_value_id));

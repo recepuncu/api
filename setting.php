@@ -42,8 +42,8 @@ function option_value_list($take, $skip){
 
 	
 
-	$sql = "SELECT opval.option_id, options.name option_description, opval.option_value_id, opvaldesc.name option_value_description 
-
+	$sql = "SELECT opval.option_id, options.name option_description, opval.option_value_id, opvaldesc.name option_value_description
+			, ove.renk_beden
 			FROM ".DB_PREFIX."option_value opval
 
 			JOIN (
@@ -54,7 +54,8 @@ function option_value_list($take, $skip){
 
 			) options ON options.option_id = opval.option_id
 
-			JOIN ".DB_PREFIX."option_value_description opvaldesc ON opvaldesc.option_value_id = opval.option_value_id";
+			JOIN ".DB_PREFIX."option_value_description opvaldesc ON opvaldesc.option_value_id = opval.option_value_id
+			LEFT JOIN ".DB_PREFIX."option_value_entegrasyon ove ON ove.option_value_id = opval.option_value_id";
 
 	$sql .= !empty($take) ? ( !empty($skip) ? " LIMIT $skip, $take" : " LIMIT $take") : ";";
 

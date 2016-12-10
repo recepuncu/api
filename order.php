@@ -31,7 +31,7 @@ function order_history_add(){
 	Flight::json( $result );	
 };
 
-function order_list($store_id=0,$order_status_id=1,$take, $skip){	
+function order_list($store_id=0,$order_status_id=1, $take, $skip){	
 	Flight::authorization( Flight::request() );
 	global $db;
 	
@@ -62,12 +62,14 @@ function order_list($store_id=0,$order_status_id=1,$take, $skip){
 			);
 			
 			$custom_fields = json_decode($customer["custom_field"]); 
-			foreach($custom_fields as $custom_field_key => $custom_field){
-				$custom_field_name = $custom_field_key;
-				$custom_field_name = $db->get("custom_field_description", "name",
-					array("custom_field_id" => $custom_field_key)
-				);
-				$customer[$custom_field_name] = $custom_field;
+			if(!empty($custom_fields)){
+				foreach($custom_fields as $custom_field_key => $custom_field){
+					$custom_field_name = $custom_field_key;
+					$custom_field_name = $db->get("custom_field_description", "name",
+						array("custom_field_id" => $custom_field_key)
+					);
+					$customer[$custom_field_name] = $custom_field;
+				}
 			}
 			
 			$order_object["customer"] = $customer;

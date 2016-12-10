@@ -188,41 +188,28 @@ function product_add(){
 			Flight::halt(400, json_encode( array("Requirements Fields: " => implode(',', $required_fields)) ));
 		}
 	}
-
+	
 	$db->pdo->beginTransaction();
 	try {
 		
 		if( $db->has( "product", array("OR"=>array("model" => $request->data["model"], "sku" => $request->data["sku"])) ) ){
-			Flight::json( array('state' => false, 'data'=>(array)$request->data, 'Messages' => array('db'=>$db->error(), 'ex'=>'Aynı model veya sku ile kayıtlı başka bir ürün bulunuyor.')) );
-			exit(200);
+			throw new Exception('Aynı model veya sku ile kayıtlı başka bir ürün bulunuyor.', 200);
 		}
 		
 		$seller_stock_codes = array();
 		if(array_key_exists('product_options', $request_keys)){
-			$product_options = unserialize( $request->data["product_options"] );	
+			$product_options = $request->data["product_options"];	
 			foreach($product_options as $product_option){
 				foreach($product_option["option_values"] as $option_value){						
 					$seller_stock_codes[] = $option_value["seller_stock_code"];
 				}
 			}		
-		}
-		
-		if( $db->has("product_option_value", array("seller_stock_code" => $seller_stock_codes)) ){
-			Flight::json( array('state' => false, 'data'=>(array)$request->data, 'Messages' => array('db'=>$db->error(), 'ex'=>'Aynı seller stock code ile kayıtlı başka bir ürün bulunuyor.')) );
-			exit(200);		
+		}		
+		if( $db->has("product_option_value", array("seller_stock_code" => $seller_stock_codes)) ){		
+			throw new Exception('Aynı seller stock code ile kayıtlı başka bir ürün bulunuyor.', 200);
 		}	
 		
-		$thumb = array();
-		$ctx = stream_context_create(
-			array(
-				'ssl' => array('verify_peer'=>false, 'verify_peer_name'=>false),
-				'http' => array(
-					'ignore_errors' => true,
-					'header'=> 'Content-type: application/x-www-form-urlencoded\r\n'.
-							   'User-Agent:Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36\r\n'
-				)
-			)
-		);
+		$thumb = array();		
 		if(array_key_exists('images', $request_keys)){
 			foreach($request->data["images"] as $image){
 				$filename = $image;
@@ -235,6 +222,8 @@ function product_add(){
 								$http_file_content = file_get_contents($filename);
 								file_put_contents(DIR_IMAGE_API.DIR_IMAGE_SUFFIX_API . $http_filename, $http_file_content);
 								$filename = DIR_IMAGE_SUFFIX_API.$http_filename;			
+							}else{
+								$filename = DIR_IMAGE_SUFFIX_API.$http_filename;
 							}
 					}		
 				}
@@ -302,12 +291,13 @@ function product_add(){
 			}
 			
 			if(array_key_exists('images', $request_keys)){ //opsiyonel
-				//if(count($thumb)>1)
-				foreach($thumb as $image){
-					$db->insert( "product_image", array(
-						"product_id" => $last_product_id,
-						"image" => $image
-					));
+				if(count($thumb)>1){
+					foreach($thumb as $image){
+						$db->insert( "product_image", array(
+							"product_id" => $last_product_id,
+							"image" => $image
+						));
+					}
 				}
 			}
 	
@@ -324,7 +314,7 @@ function product_add(){
 			
 			if(array_key_exists('product_options', $request_keys)){
 
-					$product_options = unserialize( $request->data["product_options"] );
+					$product_options = $request->data["product_options"];
 					
 					foreach($product_options as $product_option){
 						$last_product_option_id = $db->insert( "product_option", array(

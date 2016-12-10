@@ -100,7 +100,7 @@ function product_option_value_update_quantities(){
 	
 	$request = Flight::request();
 	
-	$request_data = unserialize($request->data["data"]);
+	$request_data = $request->data["data"];
 
 	try {
 		$updated_seller_stock_codes = array();
@@ -126,7 +126,7 @@ function product_option_value_update_price(){
 	
 	$request = Flight::request();
 	
-	$request_data = unserialize($request->data["data"]);
+	$request_data = $request->data["data"];
 
 	try {
 		$updated_seller_stock_codes = array();

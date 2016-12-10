@@ -31,7 +31,7 @@ function slugify($str, $options = array()) {
 		'limit' => null,
 		'lowercase' => true,
 		'replacements' => array(),
-		'transliterate' => false,
+		'transliterate' => true,
 	);
 	
 	// Merge options

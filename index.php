@@ -1,5 +1,8 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once ('../config.php');
 require_once ('api_config.php');
 require_once ('funcs.php');
@@ -28,6 +31,10 @@ Flight::map('authorization', function ($request) {
 		Flight::halt(401, "Unauthorized");
 		}
 });
+
+Flight::route('/', function(){
+	echo 'degaje!';
+});
 	
 include ("setting.php");
 Flight::route('/setting/option/list(/@take:[0-9]+(/@skip:[0-9]+))', 'option_list');
@@ -54,6 +61,7 @@ Flight::route('/product/get/@product_id:[0-9]+', 'get_product_by_id');
 Flight::route('/product/list(/@take:[0-9]+(/@skip:[0-9]+))', 'product_list');
 Flight::route('POST /product/add', 'product_add');
 Flight::route('POST /product/update', 'product_update');
+Flight::route('POST /product/update/price', 'update_price');
 
 include ("product_image.php");
 Flight::route('POST /product/image/add', 'product_image_add');

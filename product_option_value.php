@@ -98,21 +98,20 @@ function product_option_value_update_quantities(){
 	Flight::authorization( Flight::request() );
 	global $db;
 	
-	$request = Flight::request();
+	$request = Flight::request();	
+	$opsiyon_data = $request->data[0];
+	$model_data = $request->data[1];
 	
-	$request_data = $request->data["data"];
-
-	try {
+	try {		
 		$updated_seller_stock_codes = array();
-		foreach($request_data as $data){
-			$updated = $db->update( "product_option_value", array(
-				"quantity" => $data["quantity"]
-			), array("seller_stock_code" => $data["seller_stock_code"]));
-			if($updated){
-				$updated_seller_stock_codes[] = $data["seller_stock_code"];
-			}
+		foreach($opsiyon_data as $data){
+			$updated = $db->update('product_option_value', array('quantity'=>$data['quantity']), array('seller_stock_code'=>$data['seller_stock_code']));
+			$updated_seller_stock_codes[] = $data["seller_stock_code"];
 		}
-		$result = $db->select("product_option_value", "*", array("seller_stock_code"=>$updated_seller_stock_codes));
+		//foreach($model_data as $data){
+		//	$db->update('product', array('quantity'=>$data['quantity']), array('model'=>$data['sModel']));
+		//}
+		$result = $db->select("product_option_value", "*", array("seller_stock_code"=>$updated_seller_stock_codes));		
 		Flight::json( array('state' => true, 'data'=>$result, 'Messages' => array() ) );
 	}
 	catch(Exception $e){
@@ -131,9 +130,7 @@ function product_option_value_update_price(){
 	try {
 		$updated_seller_stock_codes = array();
 		foreach($request_data as $data){
-			$updated = $db->update( "product_option_value", array(
-				"price" => $data["price"]
-			), array("seller_stock_code" => $data["seller_stock_code"]));
+			$updated = $db->query(sprintf("UPDATE %sproduct_option_value SET price = '%s' WHERE seller_stock_code = '%s'", DB_PREFIX, $data["price"], $data["seller_stock_code"]));
 			if($updated){
 				$updated_seller_stock_codes[] = $data["seller_stock_code"];
 			}

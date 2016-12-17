@@ -192,8 +192,8 @@ function product_add() {
     $db->pdo->beginTransaction();
     try {
 
-        if ($request->data["description"] == '') {
-            throw new Exception('Açıklama boş bırakılamaz.', 200);
+        if ($request->data["name"] == '' || $request->data["description"] == '') {
+            throw new Exception('Ürün adı ve açıklama boş bırakılamaz.', 200);
         }
 		
         $thumb = array();
@@ -244,6 +244,10 @@ function product_add() {
 					"category_id" => $category_id
 				), array('product_id'=>$product['product_id']));
 			}
+			
+			$db->update("url_alias", array(                
+                "keyword" => slugify($request->data["name"])
+            ), array('query'=>"product_id=" . $last_product_id));
 			
 			throw new Exception('Aynı model veya sku ile kayıtlı başka bir ürün bulunuyor.', 200);
         }

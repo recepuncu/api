@@ -192,9 +192,13 @@ function product_add() {
     $db->pdo->beginTransaction();
     try {
 
-        if ($request->data["name"] == '' || $request->data["description"] == '') {
-            throw new Exception('Ürün adı ve açıklama boş bırakılamaz.', 200);
+        if ($request->data["name"] == '') {
+            throw new Exception('Ürün adı ve açıklama boş bırakılamaz.');
         }
+		
+		if($request->data["description"] == ''){
+			$request->data["description"] = '-';
+		}
 		
         $thumb = array();
         if (array_key_exists('images', $request_keys)) {
@@ -223,7 +227,7 @@ function product_add() {
 			$db->update("product", array(
 				"model" => $request->data["model"],
 				"sku" => $request->data["sku"],
-				"image" => $thumb[0],
+				"image" => (!empty($thumb)>0 ? $thumb[0] : ''),
 				"quantity" => $request->data["quantity"],
 				"stock_status_id" => $request->data["stock_status_id"],
 				"manufacturer_id" => $request->data["manufacturer_id"],
@@ -247,9 +251,13 @@ function product_add() {
 			
 			$db->update("url_alias", array(                
                 "keyword" => slugify($request->data["name"])
-            ), array('query'=>"product_id=" . $last_product_id));
+            ), array('query'=>"product_id=" . $product['product_id']));
+						
+			throw new Exception('Aynı model veya sku ile kayıtlı başka bir ürün güncellendi.');			
+        }		
 			
-			throw new Exception('Aynı model veya sku ile kayıtlı başka bir ürün bulunuyor.', 200);
+		if ($db->has("url_alias", array("keyword" => slugify($request->data["name"])))) {
+            throw new Exception('Aynı isim ile kayıtlı başka bir ürün bulunuyor.');
         }
 
         $seller_stock_codes = array();
@@ -262,7 +270,7 @@ function product_add() {
             }
         }
         if ($db->has("product_option_value", array("seller_stock_code" => $seller_stock_codes))) {
-            throw new Exception('Aynı seller stock code ile kayıtlı başka bir ürün bulunuyor.', 200);
+            throw new Exception('Aynı seller stock code ile kayıtlı başka bir ürün bulunuyor.');
         }
 
         /**
@@ -295,7 +303,7 @@ function product_add() {
         $last_product_id = $db->insert("product", array(
             "model" => $request->data["model"],
             "sku" => $request->data["sku"],
-            "image" => $thumb[0],
+            "image" => (!empty($thumb)>0 ? $thumb[0] : ''),
             "quantity" => $request->data["quantity"],
             "stock_status_id" => $request->data["stock_status_id"],
             "manufacturer_id" => $request->data["manufacturer_id"],
